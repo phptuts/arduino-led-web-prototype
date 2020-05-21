@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arduino LED</title>
+    <style>
+      .led {
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+      }
+      #led_7 {
+        background-color: #a20000;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="connect()">Connect</button>
+    <button onclick="toggleBtn7()" id="led_7_btn">Toggle LED 7</button>
+    <video id="video" width="640" height="480" autoplay></video>
+
+    <script>
+      let writer;
+      let led7 = true;
+      const enc = new TextEncoder(); // always utf-8
+      async function connect() {
+        const port = await navigator.serial.requestPort();
+        await port.open({
+          baudrate: 9600,
+        });
+        writer = port.writable.getWriter();
+      }
+
+      function toggleBtn7() {
+        led7 = !led7;
+        writer.write(enc.encode(`7-${led7 ? 'on' : 'off'}`));
+      }
+
+      var video = document.getElementById('video');
+
+      // Get access to the camera!
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Not adding `{ audio: true }` since we only want video now
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then(function (stream) {
+            //video.src = window.URL.createObjectURL(stream);
+            video.srcObject = stream;
+            video.play();
+          });
+      }
+    </script>
+  </body>
+</html>
